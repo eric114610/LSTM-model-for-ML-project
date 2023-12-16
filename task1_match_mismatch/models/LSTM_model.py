@@ -235,13 +235,13 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_spch4 = layer_reshape(output_spch4)
     output_spch5 = layer_reshape(output_spch5)  
 
-    # att_layer = Attention(return_sequences=True)
+    att_layer = Attention(return_sequences=True)
     
-    # output_spch1 = att_layer(output_spch1)
-    # output_spch2 = att_layer(output_spch2)
-    # output_spch3 = att_layer(output_spch3)
-    # output_spch4 = att_layer(output_spch4)
-    # output_spch5 = att_layer(output_spch5)
+    output_spch1 = att_layer(output_spch1)
+    output_spch2 = att_layer(output_spch2)
+    output_spch3 = att_layer(output_spch3)
+    output_spch4 = att_layer(output_spch4)
+    output_spch5 = att_layer(output_spch5)
 
     # lstm_spch = tf.keras.layers.LSTM(units_lstm, return_sequences=True, activation= fun_act)
     lstm_spch = tf.compat.v1.keras.layers.CuDNNLSTM(units_lstm, return_sequences=True)
