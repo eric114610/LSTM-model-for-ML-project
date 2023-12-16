@@ -58,7 +58,40 @@ def loss_BCE_custom():
     return loss
 
 
+from tensorflow.keras import backend as K
 
+class Attention(tf.keras.layers.Layer):
+    
+    def __init__(self, return_sequences=True):
+        self.return_sequences = return_sequences
+        super(Attention,self).__init__()
+        
+    def build(self, input_shape):
+        
+        self.W=self.add_weight(name="att_weight", shape=(input_shape[-1],1),
+                               initializer="normal")
+        self.b=self.add_weight(name="att_bias", shape=(input_shape[1],1),
+                               initializer="zeros")
+        
+        super(Attention,self).build(input_shape)
+        
+    def call(self, x):
+        
+        e = K.tanh(K.dot(x,self.W)+self.b)
+        a = K.softmax(e, axis=1)
+        output = x*a
+        
+        if self.return_sequences:
+            return output
+        
+        return K.sum(output, axis=1)
+    
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'return_sequences': self.return_sequences 
+        })
+        return config
 
 
 
@@ -106,15 +139,6 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_eeg = tf.keras.layers.Convolution2D(filters_cnn_eeg, (kerSize_temporal, 1),
                                                strides=(stride_temporal, 1), activation="relu")(output_eeg)
 
-    ## ADDed
-    # block1       = tf.keras.layers.BatchNormalization()(output_eeg)
-    # output_eeg       = tf.keras.layers.DepthwiseConv2D((64, 1), use_bias = False,
-    #                                depth_multiplier = 2,
-    #                                depthwise_constraint = tf.keras.constraints.max_norm(1.))(block1)
-
-
-
-
     # layer
     layer_permute = tf.keras.layers.Permute((1, 3, 2))
     output_eeg = layer_permute(output_eeg)
@@ -131,6 +155,15 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_eeg = tf.keras.layers.BatchNormalization()(output_eeg)
     layer3_timeDis = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(units_lstm, activation=fun_act))
     output_eeg = layer3_timeDis(output_eeg)
+    
+    dropoutLayer = tf.keras.layers.Dropout(0.5)
+
+    # output_eeg = dropoutLayer(output_eeg)
+
+    output_eeg = tf.keras.layers.Dense(104, activation="relu")(output_eeg)
+    output_eeg = tf.keras.layers.Dense(104, activation="sigmoid")(output_eeg)
+
+    #output_eeg = dropoutLayer(output_eeg)
 
     ##############
     #### Bottom part of the network dealing with Speech.
@@ -202,13 +235,66 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_spch4 = layer_reshape(output_spch4)
     output_spch5 = layer_reshape(output_spch5)  
 
+    # att_layer = Attention(return_sequences=True)
+    
+    # output_spch1 = att_layer(output_spch1)
+    # output_spch2 = att_layer(output_spch2)
+    # output_spch3 = att_layer(output_spch3)
+    # output_spch4 = att_layer(output_spch4)
+    # output_spch5 = att_layer(output_spch5)
+
     # lstm_spch = tf.keras.layers.LSTM(units_lstm, return_sequences=True, activation= fun_act)
     lstm_spch = tf.compat.v1.keras.layers.CuDNNLSTM(units_lstm, return_sequences=True)
+    # BiLstm_spch = tf.keras.layers.Bidirectional(lstm_spch)
     output_spch1 = lstm_spch(output_spch1)
     output_spch2 = lstm_spch(output_spch2)
     output_spch3 = lstm_spch(output_spch3)
     output_spch4 = lstm_spch(output_spch4)
     output_spch5 = lstm_spch(output_spch5)
+
+    # att_layer = Attention(return_sequences=True)
+    
+    # output_spch1 = att_layer(output_spch1)
+    # output_spch2 = att_layer(output_spch2)
+    # output_spch3 = att_layer(output_spch3)
+    # output_spch4 = att_layer(output_spch4)
+    # output_spch5 = att_layer(output_spch5)
+
+    # lstm_spch2 = tf.compat.v1.keras.layers.CuDNNLSTM(units_lstm*2, return_sequences=True)
+
+    # output_spch1 = lstm_spch2(output_spch1)
+    # output_spch2 = lstm_spch2(output_spch2)
+    # output_spch3 = lstm_spch2(output_spch3)
+    # output_spch4 = lstm_spch2(output_spch4)
+    # output_spch5 = lstm_spch2(output_spch5)
+
+    linearLayer = tf.keras.layers.Dense(32, activation="linear")
+
+    output_spch1 = linearLayer(output_spch1)
+    output_spch2 = linearLayer(output_spch2)
+    output_spch3 = linearLayer(output_spch3)
+    output_spch4 = linearLayer(output_spch4)
+    output_spch5 = linearLayer(output_spch5)
+
+    output_spch1 = tf.keras.layers.Dense(104, activation="relu")(output_spch1)
+    output_spch1 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch1)
+    output_spch2 = tf.keras.layers.Dense(104, activation="relu")(output_spch2)
+    output_spch2 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch2)
+    output_spch3 = tf.keras.layers.Dense(104, activation="relu")(output_spch3)
+    output_spch3 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch3)
+    output_spch4 = tf.keras.layers.Dense(104, activation="relu")(output_spch4)
+    output_spch4 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch4)
+    output_spch5 = tf.keras.layers.Dense(104, activation="relu")(output_spch5)
+    output_spch5 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch5)
+
+
+    # dropoutLayer = tf.keras.layers.Dropout(0.5)
+
+    # output_spch1 = dropoutLayer(output_spch1)
+    # output_spch2 = dropoutLayer(output_spch2)
+    # output_spch3 = dropoutLayer(output_spch3)
+    # output_spch4 = dropoutLayer(output_spch4)
+    # output_spch5 = dropoutLayer(output_spch5)
 
     ##############
     #### last common layers

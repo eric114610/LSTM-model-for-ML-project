@@ -51,7 +51,7 @@ if __name__ == "__main__":
     # Hop length between two consecutive decision windows
     hop_length = 64
 
-    epochs = 5
+    epochs = 1
     patience = 5
     batch_size = 64
     only_evaluate = False
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
 
 
-    training_log_filename = "training_log_{}_{}_LSTM.csv".format(number_mismatch, window_length_s)
+    training_log_filename = "training_log_{}_{}_BiLSTM.csv".format(number_mismatch, window_length_s)
 
 
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     features = ["eeg"] + stimulus_features
 
     # Create a directory to store (intermediate) results
-    results_folder = os.path.join(experiments_folder, "results_LSTM_model_{}_MM_{}_s_{}".format(number_mismatch, window_length_s, stimulus_features[0]))
+    results_folder = os.path.join(experiments_folder, "results_Attention_BLSTM_model_{}_MM_{}_s_{}".format(number_mismatch, window_length_s, stimulus_features[0]))
     os.makedirs(results_folder, exist_ok=True)
 
     # create dilation model
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     model = lstm_mel([window_length, 64], [window_length, stimulus_dimension])
     #model = GeneralModel(5, [window_length, stimulus_dimension])
 
-    model_path = os.path.join(results_folder, "LSTMmodel_{}_MM_{}_s_{}.h5".format(number_mismatch, window_length_s, stimulus_features[0]))
+    model_path = os.path.join(results_folder, "Attention_BiLSTM_model_{}_MM_{}_s_{}.h5".format(number_mismatch, window_length_s, stimulus_features[0]))
 
     if only_evaluate:
         #model = lstm_mel([window_length, 64], [window_length, stimulus_dimension])
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         model.load_weights(model_path)
 
     else:
-        model.load_weights(model_path)
+        #model.load_weights(model_path)
         train_files = [x for x in glob.glob(os.path.join(data_folder, "train_-_*")) if os.path.basename(x).split("_-_")[-1].split(".")[0] in features]
         # Create list of numpy array files
         train_generator = DataGenerator(train_files, window_length)
