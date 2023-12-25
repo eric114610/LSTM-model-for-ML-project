@@ -88,7 +88,7 @@ if __name__ == "__main__":
     features = ["eeg"] + stimulus_features
 
     # Create a directory to store (intermediate) results
-    results_folder = os.path.join(experiments_folder, "results_Attention_BLSTM_model_{}_MM_{}_s_{}".format(number_mismatch, window_length_s, stimulus_features[0]))
+    results_folder = os.path.join(experiments_folder, "results_find_model_{}_MM_{}_s_{}".format(number_mismatch, window_length_s, stimulus_features[0]))
     os.makedirs(results_folder, exist_ok=True)
 
     # create dilation model
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     model = lstm_mel([window_length, 64], [window_length, stimulus_dimension])
     #model = GeneralModel(5, [window_length, stimulus_dimension])
 
-    model_path = os.path.join(results_folder, "Attention_BiLSTM_model_{}_MM_{}_s_{}.h5".format(number_mismatch, window_length_s, stimulus_features[0]))
+    model_path = os.path.join(results_folder, "LSTMmodel_{}_MM_{}_s_{}.h5".format(number_mismatch, window_length_s, stimulus_features[0]))
 
     if only_evaluate:
         #model = lstm_mel([window_length, 64], [window_length, stimulus_dimension])
