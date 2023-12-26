@@ -12,7 +12,7 @@ from task1_match_mismatch.models.dilated_convolutional_model import dilation_mod
 
 from util.dataset_generator import DataGenerator, batch_equalizer_fn, create_tf_dataset
 
-from task1_match_mismatch.models.LSTM_model import lstm_mel
+from task1_match_mismatch.models.MHA_BiLSTM import lstm_mel
 from task1_match_mismatch.models.EEGnet import GeneralModel
 
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     epochs = 1
     patience = 5
     batch_size = 64
-    only_evaluate = False
+    only_evaluate = True
     number_mismatch = 4 # or 4
 
 

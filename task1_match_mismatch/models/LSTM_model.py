@@ -323,8 +323,6 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_eeg = tf.keras.layers.BatchNormalization()(output_eeg)
     layer3_timeDis = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(units_lstm, activation=fun_act))
     output_eeg = layer3_timeDis(output_eeg)
-    
-    dropoutLayer = tf.keras.layers.Dropout(0.5)
 
     # output_eeg = dropoutLayer(output_eeg)
 
@@ -413,50 +411,12 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
 
     # lstm_spch = tf.keras.layers.LSTM(units_lstm, return_sequences=True, activation= fun_act)
     lstm_spch = tf.compat.v1.keras.layers.CuDNNLSTM(units_lstm, return_sequences=True)
-    BiLstm_spch = tf.keras.layers.Bidirectional(lstm_spch)
-    output_spch1 = BiLstm_spch(output_spch1)
-    output_spch2 = BiLstm_spch(output_spch2)
-    output_spch3 = BiLstm_spch(output_spch3)
-    output_spch4 = BiLstm_spch(output_spch4)
-    output_spch5 = BiLstm_spch(output_spch5)
+    output_spch1 = lstm_spch(output_spch1)
+    output_spch2 = lstm_spch(output_spch2)
+    output_spch3 = lstm_spch(output_spch3)
+    output_spch4 = lstm_spch(output_spch4)
+    output_spch5 = lstm_spch(output_spch5)
 
-    att_layer = Attention(return_sequences=True)
-    
-    output_spch1 = att_layer(output_spch1)
-    output_spch2 = att_layer(output_spch2)
-    output_spch3 = att_layer(output_spch3)
-    output_spch4 = att_layer(output_spch4)
-    output_spch5 = att_layer(output_spch5)
-
-    BN_layer3 = tf.keras.layers.BatchNormalization()
-    output_spch1 = BN_layer3(output_spch1)
-    output_spch2 = BN_layer3(output_spch2)
-    output_spch3 = BN_layer3(output_spch3)
-    output_spch4 = BN_layer3(output_spch4)
-    output_spch5 = BN_layer3(output_spch5)
-
-    lstm_spch2 = tf.compat.v1.keras.layers.CuDNNLSTM(units_lstm*2, return_sequences=True)
-
-    output_spch1 = lstm_spch2(output_spch1)
-    output_spch2 = lstm_spch2(output_spch2)
-    output_spch3 = lstm_spch2(output_spch3)
-    output_spch4 = lstm_spch2(output_spch4)
-    output_spch5 = lstm_spch2(output_spch5)
-
-    # linearLayer = tf.keras.layers.Dense(32, activation="linear")
-
-    # output_spch1 = linearLayer(output_spch1)
-    # output_spch2 = linearLayer(output_spch2)
-    # output_spch3 = linearLayer(output_spch3)
-    # output_spch4 = linearLayer(output_spch4)
-    # output_spch5 = linearLayer(output_spch5)
-
-    # BN_layer4 = tf.keras.layers.BatchNormalization()
-    # output_spch1 = BN_layer4(output_spch1)
-    # output_spch2 = BN_layer4(output_spch2)
-    # output_spch3 = BN_layer4(output_spch3)
-    # output_spch4 = BN_layer4(output_spch4)
-    # output_spch5 = BN_layer4(output_spch5)
 
     output_spch1 = tf.keras.layers.Dense(104, activation="relu")(output_spch1)
     output_spch1 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch1)
@@ -469,15 +429,6 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     output_spch5 = tf.keras.layers.Dense(104, activation="relu")(output_spch5)
     output_spch5 = tf.keras.layers.Dense(104, activation="sigmoid")(output_spch5)
 
-
-    # dropoutLayer = tf.keras.layers.Dropout(0.5)
-
-    # output_spch1 = dropoutLayer(output_spch1)
-    # output_spch2 = dropoutLayer(output_spch2)
-    # output_spch3 = dropoutLayer(output_spch3)
-    # output_spch4 = dropoutLayer(output_spch4)
-    # output_spch5 = dropoutLayer(output_spch5)
-
     ##############
     #### last common layers
     # layer
@@ -489,24 +440,11 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=32, filters_cnn_eeg=16, filters_c
     cos_scores5 = layer_dot([output_eeg, output_spch5])
 
     # layer
-    layer_expand = tf.keras.layers.Lambda(lambda x: tf.keras.backend.expand_dims(x, axis=2))
-    #layer_sigmoid = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(1, activation='sigmoid'))
-    layer_softmax = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(5, activation='sigmoid'))
 
-    cos_scores_mix = tf.keras.layers.Concatenate()([layer_expand(cos_scores), layer_expand(cos_scores2), layer_expand(cos_scores3), layer_expand(cos_scores4), layer_expand(cos_scores5)])
-
-    #cos_scores_sig = layer_sigmoid(cos_scores_mix)
-    cos_scores_sig = layer_softmax(cos_scores_mix)
-
-    # layer
-    layer_ave = tf.keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=1, keepdims=True))
-    cos_scores_sig = SqueezeLayer()(cos_scores_sig, axis=2)
-    out = layer_ave(cos_scores_sig)
-    out = tf.keras.layers.Flatten()(out)
-    # cos = [cos_scores, cos_scores2, cos_scores3, cos_scores4, cos_scores5]
-    # linear_proj_sim = tf.keras.layers.Dense(1, activation="linear")
-    # cos_proj = [linear_proj_sim(tf.keras.layers.Flatten()(cos_i)) for cos_i in cos]
-    # out = tf.keras.activations.softmax((tf.keras.layers.Concatenate()(cos_proj)))
+    cos = [cos_scores, cos_scores2, cos_scores3, cos_scores4, cos_scores5]
+    linear_proj_sim = tf.keras.layers.Dense(1, activation="linear")
+    cos_proj = [linear_proj_sim(tf.keras.layers.Flatten()(cos_i)) for cos_i in cos]
+    out = tf.keras.activations.softmax((tf.keras.layers.Concatenate()(cos_proj)))
 
 
     model = tf.keras.Model(inputs=[input_eeg, input_spch1, input_spch2, input_spch3, input_spch4, input_spch5], outputs=[out])

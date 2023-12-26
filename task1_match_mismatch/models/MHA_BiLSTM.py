@@ -198,13 +198,12 @@ def lstm_mel(shape_eeg, shape_spch, units_lstm=64, filters_cnn_eeg=16, filters_c
     output_spch5 = BiLstm_spch(output_spch5)
 
     att_layer = Attention(return_sequences=True)
-    mul_att_layer = MultiHead(att_layer, layer_num=2, name='Multihead_Att')
-
-    output_spch1 = MultiHead(att_layer, layer_num=2, name='Multihead_Att1')(output_spch1)
-    output_spch2 = MultiHead(att_layer, layer_num=2, name='Multihead_Att2')(output_spch2)
-    output_spch3 = MultiHead(att_layer, layer_num=2, name='Multihead_Att3')(output_spch3)
-    output_spch4 = MultiHead(att_layer, layer_num=2, name='Multihead_Att4')(output_spch4)
-    output_spch5 = MultiHead(att_layer, layer_num=2, name='Multihead_Att5')(output_spch5)
+    
+    output_spch1 = MultiHead(att_layer, layer_num=3, name='Multihead_Att1')(output_spch1)
+    output_spch2 = MultiHead(att_layer, layer_num=3, name='Multihead_Att2')(output_spch2)
+    output_spch3 = MultiHead(att_layer, layer_num=3, name='Multihead_Att3')(output_spch3)
+    output_spch4 = MultiHead(att_layer, layer_num=3, name='Multihead_Att4')(output_spch4)
+    output_spch5 = MultiHead(att_layer, layer_num=3, name='Multihead_Att5')(output_spch5)
 
 
     shape = output_spch1.get_shape().as_list()
