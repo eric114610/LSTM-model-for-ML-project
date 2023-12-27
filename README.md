@@ -1,7 +1,6 @@
 Auditory-eeg-challenge-2024-code
 ================================
 This is the codebase for the [2024 ICASSP Auditory EEG challenge](https://exporl.github.io/auditory-eeg-challenge-2024).
-This codebase contains baseline models and code to preprocess stimuli for both tasks.
 
 # Prerequisites
 
