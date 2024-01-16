@@ -60,5 +60,5 @@ python task1_match_mismatch\experiments\dilated_convolutional_model.py
 python task1_match_mismatch\experiments\test_match_mismatch.py
 ```
 
-## 6. Results
-A few results of our models are in the folder task1_match_mismatch/results.
+## 6. Performance details and output sample
+A few results of our models are in the folder [task1_match_mismatch/results](https://github.com/eric114610/LSTM-model-for-ML-project/tree/main/task1_match_mismatch/results). 
