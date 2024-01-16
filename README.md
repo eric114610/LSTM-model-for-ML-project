@@ -49,6 +49,8 @@ If you follow the BIDS structure, by downloading the whole dataset, the folders 
 OK, you should be all setup now!
 
 ## 4. Train the model 
+Remember to modify the config file and parameters in the model before training.
+
 ```bash
 python task1_match_mismatch\experiments\dilated_convolutional_model.py
 ```
