@@ -59,3 +59,6 @@ python task1_match_mismatch\experiments\dilated_convolutional_model.py
 ```bash
 python task1_match_mismatch\experiments\test_match_mismatch.py
 ```
+
+## 6. Results
+A few results of our models are in the folder task1_match_mismatch/results.
